@@ -11,7 +11,7 @@
   "scripts": {
     "format": "prettier --write './**/*.{ts,md}'",
     "dev": "nexus dev",
-    "build": "nexus build",
+    "build": "prisma migrate save --experimental && prisma migrate up --experimental  && nexus build",
     "start": "node node_modules/.build"
   },
   "prettier": {
