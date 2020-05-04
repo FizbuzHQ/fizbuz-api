@@ -12,3 +12,11 @@
 ## Run locally
 
 - `yarn nexus dev`
+
+## Deploy to staging
+
+- `git push origin master`
+
+## Promote to production
+
+- Cut Github release
