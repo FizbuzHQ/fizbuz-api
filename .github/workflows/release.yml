@@ -1,0 +1,17 @@
+name: Promote to production when a new release is created
+on:
+  release:
+    types:
+      - created
+
+jobs:
+  promte_to_prod:
+    name: Promote to production
+    runs-on: ubuntu-18.04
+    steps:
+    - name: Heroku Pipeline Promote
+      uses: tiltshift/heroku-promote-app@v1
+      with:
+        heroku_api_key: $
+        heroku_email: $
+        heroku_app_name: $
