@@ -2,7 +2,7 @@ import cors from 'cors'
 import { settings, server, use } from 'nexus'
 import { prisma } from 'nexus-plugin-prisma'
 import authenticated from './security'
-import { schema } from "nexus"
+import { schema } from 'nexus'
 
 // Prisma is our connection to the underlying database
 use(prisma())
