@@ -4,3 +4,6 @@
 # Read more about conflict resolution here: TODO
 
 20200503162910-init
+20200515152406-added-auth0sub-unique-constraintnstraint
+20200515152526-added-auth0sub-unique-constraint
+20200515152941-added-place-experiences-relationship

@@ -10,7 +10,7 @@ generator prisma_client {
 model User {
   id               String    @default(cuid()) @id
   // used for Auth0 authentication
-  auth0Sub              String
+  auth0Sub              String	@unique
   email            String    @unique
   productEmail     Boolean  @default(true)
   promotionalEmail Boolean  @default(true)
@@ -161,6 +161,7 @@ model Place {
 	name        				String       @unique
 	url         				String?
 	description 				String?
+	experiences					Experience[] @relation
 	verified    				Boolean      @default(false)
 	createdAt   				DateTime     @default(now())
 	updatedAt   				DateTime?

@@ -1,5 +1,5 @@
 import { schema } from "nexus"
-// import e from "cors"
+import e from "cors"
 
 schema.objectType({
   name: "OpenGraph",
@@ -248,20 +248,104 @@ schema.mutationType({
     t.crud.createOneUser()
     t.crud.updateOneUser()
     t.crud.deleteOneUser()
+    /* t.field('createOneUser', {
+      type: 'User',
+      resolve(user, args, ctx) {
+        return ctx.db.user.create({
+          data: user
+        })
+      },
+    }) */
   }
 })
 
-// auth
+
+/*
+
+TODO: better document how middleware processes both the Query/Mutation declaration and the returned object/fields
+
+args: {
+  data: { ... }
+}
+
+info: {
+  fieldName: string
+}
+
+ctx: {
+  user: {
+    'https://fizbuz.com/roles': [ ... ]
+    sub: string
+  }
+}
+
+*/
+
+/* Authentication & Authorization Middleware
+
+NOTE: at some point, consider migrating to a library like graphql-shield
+
+Rules:
+
+Queries
+- Admin users can execute all queries
+- If an object has a "published" field, only return it if it belongs to the autenticated user 
+- 
+
+Mutations
+- Must be authenticated (user property attached to ctx)
+- 
+
+*/
+
 schema.middleware((_config) => {
+  const isAdmin = (user: any) => {
+    const ROLES_KEY = "https://fizbuz.com/roles";
+    return (user && user[ROLES_KEY] && user[ROLES_KEY].indexOf('admin') >= 0)
+  }
+
   return async (root, args, ctx: any, info, next) => {
-    // console.log("USER:", ctx.user)
-    if (info.operation.operation === 'mutation' && ctx.user === undefined) {
-      console.log("mutation not allowed")
-      throw new Error("mutation not allowed")
+    const operation = info.operation?.operation
+    const fieldName = info.fieldName
+    //console.log(root, operation, fieldName)
+    if (operation === 'mutation') {
+      // if this is the "root" of the mutation (i.e. not one of the returned sub-fields)
+      if (root === undefined) {
+        if (fieldName === 'createOneUser') {
+          console.log('Registering a new user')
+          // pass through
+        }
+        else {
+          // check to see if the user is authorized
+          if (ctx.user === undefined) {
+            console.log("mutation not allowed")
+            throw new Error("mutation not allowed")
+          }
+        } 
+      }
+      else {
+        console.log('not-root ', fieldName);
+      }
     }
-    else {
-      return await next(root, args, ctx, info)
+    else if (operation === 'query') {
+      console.log('query ', ctx.user, operation, fieldName)
+      if (root === undefined) {
+        if (fieldName === 'users') {
+          if (!ctx.user || !isAdmin(ctx.user)) {
+            throw new Error(`Query for all users not allowed: ${ctx.user}`);
+          }
+        }
+      }
+      else {
+        if (fieldName === 'email') {
+          if (!ctx.user || ctx.user.sub !== root.auth0Sub) {
+            return '<redacted>'
+          }
+        }
+      } 
     }
+
+    return await next(root, args, ctx, info)
   }
 })
 
