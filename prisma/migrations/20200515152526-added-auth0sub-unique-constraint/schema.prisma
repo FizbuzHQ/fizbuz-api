@@ -1,0 +1,228 @@
+datasource db {
+  provider = "postgresql"
+  url = "***"
+}
+
+generator prisma_client {
+  provider = "prisma-client-js"
+}
+     
+model User {
+  id               String    @default(cuid()) @id
+  // used for Auth0 authentication
+  auth0Sub              String	@unique
+  email            String    @unique
+  productEmail     Boolean  @default(true)
+  promotionalEmail Boolean  @default(true)
+  profile          Profile?  @relation("UserProfile")
+  outboundConnections Connection[] @relation("outboundConnections")
+  inboundConnections  Connection[] @relation("inboundConnections")
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime?
+  deletedAt        DateTime?
+}
+
+model Connection {
+  id          String    @default(cuid()) @id
+  user        User      @relation("outboundConnections", fields: [userId], references: [id])
+  userId      String
+  connected   User      @relation("inboundConnections", fields: [connectedId], references: [id])
+  connectedId String
+  pin         String
+  comment     String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime?
+  deletedAt   DateTime?
+
+  @@unique([userId, connectedId])
+}
+
+model Profile {
+	id                	String     		@default(cuid()) @id
+	user              	User      		@relation("UserProfile", fields: [userId], references: [id])
+	userId            	String
+	nickname          	String     		@unique
+	name      					String
+	photo     					String?
+	location  					String?
+	image     					String?
+	about     					String?
+	pronouns  					String?
+	preview   					String?
+	published 					Boolean   		@default(true)
+	skills							Skill[]				@relation
+	externals						External[]		@relation
+	preferences					Preference[]	@relation
+	experiences 				Experience[]	@relation
+	activities					Activity[]		@relation
+	createdAt 					DateTime			@default(now())
+	updatedAt 					DateTime?
+	deletedAt 					DateTime?
+}
+
+enum ToolKind {
+	Language
+	Framework
+	Library
+	Device
+	Service
+	Software
+	Specialty
+}
+
+model Tool {
+	id          				String				@default(cuid()) @id
+	name        				String    		@unique
+	kind        				ToolKind
+	description 				String?
+	url         				String?
+	verified    				Boolean   		@default(false)
+	skills							Skill[]				@relation
+	createdAt   				DateTime  		@default(now())
+	updatedAt   				DateTime?
+	deletedAt   				DateTime?
+}
+
+model Skill {
+  id          				String				@default(cuid()) @id 
+	profile   					Profile   		@relation(fields: [profileId], references: [id])
+	profileId 					String
+	tool      					Tool      		@relation(fields: [toolId], references: [id])
+	toolId    					String
+	level     					Int
+	comment   					String?
+	published 					Boolean   		@default(true)
+	createdAt 					DateTime  		@default(now())
+	updatedAt 					DateTime?
+	deletedAt 					DateTime?
+
+  @@unique([profileId, toolId])
+}
+
+model External {
+	id        					String    		@default(cuid()) @id
+	profile   					Profile   		@relation(fields: [profileId], references: [id])
+	profileId 					String
+	service   					String
+	nickname  					String
+	createdAt 					DateTime  		@default(now())
+	updatedAt 					DateTime?
+	deletedAt 					DateTime?
+}
+
+enum TraitKind {
+	Role
+	Team
+	Workplace
+	Company
+}
+
+model Trait {
+	id              		String  			@default(cuid()) @id
+	kind            		TraitKind
+	name            		String
+	description     		String?
+	verified        		Boolean  			@default(false)
+	preferences					Preference[]	@relation
+	createdAt       		DateTime 			@default(now())
+	updatedAt       		DateTime?
+	deletedAt       		DateTime?
+}
+
+model Preference {
+  id          				String				@default(cuid()) @id 
+	profile      				Profile     	@relation(fields: [profileId], references: [id])
+	profileId    				String
+	trait     					Trait     		@relation(fields: [traitId], references: [id])
+	traitId   					String
+	feels     					Int
+	comment   					String?
+	published 					Boolean   		@default(true)
+	createdAt 					DateTime  		@default(now())
+	updatedAt 					DateTime?
+	deletedAt 					DateTime?
+
+	@@unique([profileId, traitId])
+}
+
+enum PlaceKind {
+	Company
+	School
+	Class
+	Bootcamp
+	Conference
+	Hackathon
+	Meetup
+}
+
+model Place {
+	id          				String       @default(cuid()) @id
+	kind        				PlaceKind
+	name        				String       @unique
+	url         				String?
+	description 				String?
+	verified    				Boolean      @default(false)
+	createdAt   				DateTime     @default(now())
+	updatedAt   				DateTime?
+	deletedAt   				DateTime?
+}
+
+enum ExperienceKind {
+	Employee
+	Student
+	Attendee
+	Speaker
+	Instructor
+	Organizer
+}
+
+model Experience {
+	id        					String         @default(cuid()) @id
+	profile      				Profile        @relation(fields: [profileId], references: [id])
+	profileId						String
+	place     					Place          @relation(fields: [placeId], references: [id])
+	placeId							String
+	kind      					ExperienceKind
+	title     					String
+	start     					DateTime
+	end       					DateTime?
+	comment   					String?
+	published  					Boolean        @default(true)
+	createdAt 					DateTime       @default(now())
+	updatedAt 					DateTime?
+	deletedAt 					DateTime?
+}
+
+enum ActivityKind {
+	Project
+	Writing
+	Video
+}
+
+model Activity {
+	id          				String       	@default(cuid()) @id
+	profile        			Profile      	@relation(fields: [profileId], references: [id])
+	profileId						String
+	kind        				ActivityKind
+	title       				String
+	description 				String?
+	image       				String?
+	url         				String?
+	date        				DateTime
+	published   				Boolean      	@default(true)
+	createdAt   				DateTime     	@default(now())
+	updatedAt   				DateTime?
+	deletedAt   				DateTime?
+}
+
+model OpenGraph {
+	id          				String    		@default(cuid()) @id
+	url         				String    		@unique
+	urlhash     				String    		@unique
+	title       				String
+	image       				String?
+	description 				String?
+	createdAt   				DateTime  		@default(now())
+	updatedAt   				DateTime?
+	deletedAt   				DateTime?
+}
