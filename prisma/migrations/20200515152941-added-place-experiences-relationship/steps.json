@@ -1,0 +1,23 @@
+{
+  "version": "0.3.14-fixed",
+  "steps": [
+    {
+      "tag": "CreateField",
+      "model": "Place",
+      "field": "experiences",
+      "type": "Experience",
+      "arity": "List"
+    },
+    {
+      "tag": "CreateDirective",
+      "location": {
+        "path": {
+          "tag": "Field",
+          "model": "Place",
+          "field": "experiences"
+        },
+        "directive": "relation"
+      }
+    }
+  ]
+}
