@@ -7,3 +7,5 @@
 20200515152406-added-auth0sub-unique-constraintnstraint
 20200515152526-added-auth0sub-unique-constraint
 20200515152941-added-place-experiences-relationship
+20200530165753-move-auth0sub-from-user-to-identity-table
+20200601074146-skill-level-optional
