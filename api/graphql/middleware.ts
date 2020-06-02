@@ -1,8 +1,9 @@
-import { schema } from "nexus";
+import { schema } from 'nexus'
+import { CustomContext, ROLES_KEY } from '../context'
 
 /*
 
-TODO: better document how middleware processes both the Query/Mutation declaration and the returned object/fields
+TODO: better document how middleware processes both the Query/Mutation declaration and the returned objects/fields
 
 args: {
   data: { ... }
@@ -21,74 +22,23 @@ ctx: {
 
 */
 
-/* Authentication & Authorization Middleware
-
-NOTE: at some point, consider migrating to a library like graphql-shield
-
-Rules:
-
-Queries
-- Admin users can execute all queries
-- If an object has a "published" field, only return it if it belongs to the autenticated user 
-- 
-
-Mutations
-- Must be authenticated (user property attached to ctx)
-- 
-
-*/
-
+// automatically filter out non-published records for non-authenticated API calls
 schema.middleware((_config) => {
-  const isAdmin = (user: any) => {
-    const ROLES_KEY = "https://fizbuz.com/roles";
-    return (user && user[ROLES_KEY] && user[ROLES_KEY].indexOf('admin') >= 0)
-  }
-
   return async (root, args, ctx: any, info, next) => {
-    const operation = info.operation?.operation
-    const fieldName = info.fieldName
-    //console.log(root, operation, fieldName)
-    if (operation === 'mutation') {
-      // if this is the "root" of the mutation (i.e. not one of the returned sub-fields)
-      if (root === undefined) {
-        if (fieldName === 'createOneUser') {
-          console.log('Registering a new user')
-          // pass through
+    let result = await next(root, args, ctx, info)
+    //console.log(ctx.user)
+    if (ctx.user === undefined) {
+      if (Array.isArray(result)) {
+        result = result.filter((obj) => obj.published)
+      } else if (typeof result === 'object') {
+        if (result && result.published === false) {
+          result = null
         }
-        else {
-          // check to see if the user is authorized
-          if (ctx.user === undefined) {
-            console.log("mutation not allowed")
-            throw new Error("mutation not allowed")
-          }
-        } 
-      }
-      else {
-        console.log('not-root ', fieldName);
       }
     }
-    else if (operation === 'query') {
-      console.log('query ', ctx.user, operation, fieldName)
-      if (root === undefined) {
-        if (fieldName === 'users') {
-          if (!ctx.user || !isAdmin(ctx.user)) {
-            throw new Error(`Query for all users not allowed: ${ctx.user}`);
-          }
-        }
-      }
-      else {
-        if (fieldName === 'email') {
-          if (!ctx.user || ctx.user.sub !== root.auth0Sub) {
-            return '<redacted>'
-          }
-        }
-      } 
-    }
-
-    return await next(root, args, ctx, info)
+    return result
   }
 })
-
 
 // automatically handle setting timestamps on update and delete mutations
 schema.middleware((_config) => {
@@ -96,8 +46,7 @@ schema.middleware((_config) => {
     if (info.operation.operation === 'mutation' && args.data && args.where) {
       if (info.fieldName.startsWith('update')) {
         args.data.updatedAt = new Date()
-      }
-      else if (info.fieldName.startsWith('delete')) {
+      } else if (info.fieldName.startsWith('delete')) {
         args.data.deletedAt = new Date()
       }
     }
@@ -111,9 +60,8 @@ schema.middleware((_config) => {
   return async (root, args, ctx, info, next) => {
     let result = await next(root, args, ctx, info)
     if (Array.isArray(result)) {
-      result = result.filter(obj => obj.deletedAt === null)
-    }
-    else {
+      result = result.filter((obj) => obj.deletedAt === null)
+    } else {
       if (result && result.deletedAt) {
         result = null
       }
