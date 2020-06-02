@@ -19,7 +19,7 @@
     "seed": "ts-node prisma/seed.ts",
     "db:save": "prisma migrate save --experimental",
     "db:up": "prisma migrate up --experimental",
-    "start": "yarn db:save && yarn db:up && node node_modules/.build"
+    "start": "yarn db:save && yarn db:up && node .nexus/build/api"
   },
   "prettier": {
     "semi": false,
