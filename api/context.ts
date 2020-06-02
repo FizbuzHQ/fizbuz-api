@@ -13,7 +13,7 @@ interface Auth0User {
 }
 
 interface CustomContext extends NexusContext {
-  user: Auth0User
+  user?: Auth0User
 }
 
 export { Auth0User, CustomContext, ROLES_KEY, EMAIL_KEY }

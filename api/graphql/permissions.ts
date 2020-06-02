@@ -38,23 +38,21 @@ const isAuthenticated = rule({ cache: 'contextual' })(
 // This rule checks the parent object for ownership.
 const isOwner = rule({ cache: 'contextual' })(
   async (parent, args, ctx: CustomContext, info) => {
-    //console.log(parent, args, ctx.user)
-    //console.log(ctx.user.sub)
     let pass = false
-    //console.log(parent, args)
-    if (!parent.auth0Sub) {
-      // look up userId by ctx.user.sub, hard-code for now
-      const data = await ctx.db.user.findMany({
-        where: { identities: { some: { auth0Sub: ctx.user.sub } } },
-      })
-      if (data.length > 0) {
-        // see if the record being requested belongs to this user
-        pass = parent.id === data[0].id
+    if (ctx.user) {
+      if (!parent.auth0Sub) {
+        // look up userId in the DB
+        const data = await ctx.db.user.findMany({
+          where: { identities: { some: { auth0Sub: ctx.user.sub } } },
+        })
+        if (data.length > 0) {
+          // see if the record being requested belongs to this user
+          pass = parent.id === data[0].id
+        }
+      } else {
+        pass = parent.auth0Sub === ctx.user.sub
       }
-    } else {
-      pass = parent.auth0Sub === ctx.user.sub
     }
-
     console.log('isOwner rule: ', pass)
     return pass
   },
@@ -62,10 +60,13 @@ const isOwner = rule({ cache: 'contextual' })(
 
 const isSignupCheck = rule({ cache: 'contextual' })(
   async (parent, args, ctx: CustomContext) => {
-    const sub =
-      args.where?.identities.some.auth0Sub.equals ||
-      args.data?.identities.create[0].auth0Sub
-    const pass = sub === ctx.user.sub
+    let pass = false
+    if (ctx.user) {
+      const sub =
+        args.where?.identities.some.auth0Sub.equals ||
+        args.data?.identities.create[0].auth0Sub
+      pass = sub === ctx.user.sub
+    }
     console.log('isSignupCheck rule: ', pass)
     return (
       pass ||
