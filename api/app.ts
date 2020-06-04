@@ -13,6 +13,7 @@ server.express.use(cors())
 server.express.use((req: any, res, next) => {
   authenticated(req, res, () => {
     const { user } = req
+    console.log(user)
     schema.addToContext(() => {
       return { user }
     })
