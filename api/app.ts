@@ -10,6 +10,7 @@ use(prisma())
 server.express.use(cors())
 
 // Authenticates requests using Auth0
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 server.express.use((req: any, res, next) => {
   authenticated(req, res, () => {
     //console.log(req.headers)

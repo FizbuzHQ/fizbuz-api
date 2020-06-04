@@ -8,7 +8,7 @@ import {
   and,
   allow,
 } from 'nexus-plugin-shield'
-import { CustomContext, ROLES_KEY } from '../context'
+import { CustomContext /*, ROLES_KEY*/ } from '../context'
 import {
   nicknameCheckSchema,
   auth0SubCheckSchema,
@@ -28,7 +28,7 @@ import {
 )*/
 
 const isAuthenticated = rule({ cache: 'contextual' })(
-  async (parent, args, ctx: CustomContext, info) => {
+  async (parent, args, ctx: CustomContext) => {
     const pass = ctx.user !== undefined
     console.log('isAuthenticated rule: ', pass)
     return pass || 'not authenticated'
@@ -37,7 +37,7 @@ const isAuthenticated = rule({ cache: 'contextual' })(
 
 // This rule checks the parent object for ownership.
 const isOwner = rule({ cache: 'contextual' })(
-  async (parent, args, ctx: CustomContext, info) => {
+  async (parent, args, ctx: CustomContext) => {
     let pass = false
     if (ctx.user) {
       if (!parent.auth0Sub) {
@@ -96,12 +96,12 @@ const isOnboardingSkillsUpdate = inputRule()(onboardingSkillsUpdateSchema, {
   abortEarly: true,
 })
 
-const debug = rule({ cache: 'contextual' })(
-  async (parent, args, ctx: CustomContext) => {
+/*const debug = rule({ cache: 'contextual' })(
+  async (parent, args, ctx: CustomContext, info) => {
     console.log('Debug', parent, args)
     return true
   },
-)
+)*/
 
 const permissions = shield({
   rules: {
