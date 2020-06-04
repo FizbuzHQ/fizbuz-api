@@ -5,7 +5,7 @@ import jwksRsa from 'jwks-rsa'
 const authConfig = {
   issuer: 'https://fizbuz.auth0.com/',
   audience: 'https://api.fizbuz.com',
-  algorithm: ['RS256'],
+  algorithms: ['RS256'],
 }
 
 const secret = jwksRsa.expressJwtSecret({

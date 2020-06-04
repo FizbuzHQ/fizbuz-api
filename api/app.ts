@@ -12,8 +12,9 @@ server.express.use(cors())
 // Authenticates requests using Auth0
 server.express.use((req: any, res, next) => {
   authenticated(req, res, () => {
+    //console.log(req.headers)
     const { user } = req
-    console.log(user)
+    console.log('App.ts: ', user)
     schema.addToContext(() => {
       return { user }
     })
