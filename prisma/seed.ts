@@ -9,13 +9,13 @@ async function main() {
     [
       {
         name: 'JavaScript',
-        kind: 'Language' as ToolKind
+        kind: 'Language' as ToolKind,
       },
       {
         name: 'Ruby',
-        kind: 'Language' as ToolKind
+        kind: 'Language' as ToolKind,
       },
-    ].map(data => db.tool.create({ data })),
+    ].map((data) => db.tool.create({ data })),
   )
 
   console.log('Seeded: %j', results)
