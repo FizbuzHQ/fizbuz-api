@@ -61,7 +61,7 @@ const isOwner = rule({ cache: 'contextual' })(
 const isSignupCheck = rule({ cache: 'contextual' })(
   async (parent, args, ctx: CustomContext) => {
     let pass = false
-    console.log('isSignupCheck: ', ctx.user)
+    //console.log('isSignupCheck: ', ctx.user)
     if (ctx.user) {
       const sub =
         args.where?.identities.some.auth0Sub.equals ||

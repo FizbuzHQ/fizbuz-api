@@ -110,6 +110,7 @@ schema.objectType({
     t.model.name()
     t.model.nickname()
     t.model.photo()
+    t.model.about()
     t.model.preferences()
     t.model.preview()
     t.model.pronouns()

@@ -15,7 +15,7 @@ server.express.use((req: any, res, next) => {
   authenticated(req, res, () => {
     //console.log(req.headers)
     const { user } = req
-    console.log('App.ts: ', user)
+    //console.log('App.ts: ', user)
     schema.addToContext(() => {
       return { user }
     })
