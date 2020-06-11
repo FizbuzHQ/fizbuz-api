@@ -1,5 +1,5 @@
 import { schema } from 'nexus'
-import { CustomContext, ROLES_KEY } from '../context'
+//import { CustomContext, ROLES_KEY } from '../context'
 
 /*
 
@@ -26,10 +26,12 @@ ctx: {
 schema.middleware((_config) => {
   return async (root, args, ctx: any, info, next) => {
     let result = await next(root, args, ctx, info)
-    //console.log(ctx.user)
+    // if the request is not authenticated
     if (ctx.user === undefined) {
       if (Array.isArray(result)) {
-        result = result.filter((obj) => obj.published)
+        result = result.filter(
+          (obj) => !(obj.published && obj.published === false),
+        )
       } else if (typeof result === 'object') {
         if (result && result.published === false) {
           result = null
