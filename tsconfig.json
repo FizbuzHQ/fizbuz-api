@@ -7,7 +7,9 @@
       "esnext"
     ],
     "strict": true,
-    "rootDir": "api"
+    "rootDir": "api",
+    "plugins": [{ "name": "nexus/typescript-language-service" }],
+    "resolveJsonModule": true,
   },
   "include": [
     "api"
