@@ -3,11 +3,11 @@ import { CustomContext } from '../context'
 
 schema.queryType({
   definition(t) {
+    t.crud.tools({ pagination: true, filtering: true })
     t.crud.user()
     t.crud.profile()
-    //t.crud.profiles({ pagination: true, filtering: true })
     t.crud.identity()
-    t.crud.tools({ pagination: true, filtering: true })
+    t.crud.skill()
     t.field('currentUser', {
       type: 'User',
       args: {},
