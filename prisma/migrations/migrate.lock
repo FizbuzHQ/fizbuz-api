@@ -9,3 +9,4 @@
 20200515152941-added-place-experiences-relationship
 20200530165753-move-auth0sub-from-user-to-identity-table
 20200601074146-skill-level-optional
+20200611093933-case-insensitive-fields

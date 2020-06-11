@@ -4,7 +4,7 @@
 const nicknameCheckSchema = (yup: any) => {
   return yup.object().shape({
     where: yup.object().shape({
-      nickname: yup.string().required(),
+      nicknameSearch: yup.string().required(),
     }),
   })
 }
