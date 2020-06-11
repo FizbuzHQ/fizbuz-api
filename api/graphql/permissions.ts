@@ -27,34 +27,15 @@ import {
   },
 )*/
 
+/**
+ * Rules that operate on the queries/mutation as they come IN to the system
+ **/
+
 const isAuthenticated = rule({ cache: 'contextual' })(
   async (parent, args, ctx: CustomContext) => {
     const pass = ctx.user !== undefined
-    console.log('isAuthenticated rule: ', pass)
+    //console.log('isAuthenticated rule: ', pass)
     return pass || 'not authenticated'
-  },
-)
-
-// This rule checks the parent object for ownership.
-const isOwner = rule({ cache: 'contextual' })(
-  async (parent, args, ctx: CustomContext) => {
-    let pass = false
-    if (ctx.user) {
-      if (!parent.auth0Sub) {
-        // look up userId in the DB
-        const data = await ctx.db.user.findMany({
-          where: { identities: { some: { auth0Sub: ctx.user.sub } } },
-        })
-        if (data.length > 0) {
-          // see if the record being requested belongs to this user
-          pass = parent.id === data[0].id
-        }
-      } else {
-        pass = parent.auth0Sub === ctx.user.sub
-      }
-    }
-    console.log('isOwner rule: ', pass)
-    return pass
   },
 )
 
@@ -68,7 +49,7 @@ const isSignupCheck = rule({ cache: 'contextual' })(
         args.data?.identities.create[0].auth0Sub
       pass = sub === ctx.user.sub
     }
-    console.log('isSignupCheck rule: ', pass)
+    //console.log('isSignupCheck rule: ', pass)
     return (
       pass ||
       'Can only query/create a User account for your own Auth0 sub value'
@@ -96,6 +77,49 @@ const isOnboardingSkillsUpdate = inputRule()(onboardingSkillsUpdateSchema, {
   abortEarly: true,
 })
 
+/**
+ * Rules that operate on the returned data from the DB
+ **/
+
+// Checks that the logged-in user "owns" the object being returned
+const matchesUser = rule({ cache: 'contextual' })(
+  async (parent, args, ctx: CustomContext) => {
+    let pass = false
+    if (ctx.user) {
+      if (!parent.auth0Sub) {
+        // look up userId in the DB
+        const user = await ctx.db.identity
+          .findOne({
+            where: { auth0Sub: ctx.user.sub },
+          })
+          .user()
+        pass = user !== null && user.id === parent.id
+      }
+    }
+    //console.log('matchesUser rule: ', pass)
+    return pass
+  },
+)
+
+// Checks that the logged-in user "owns" the object being returned
+const matchesProfile = rule({ cache: 'contextual' })(
+  async (parent, args, ctx: CustomContext) => {
+    let pass = false
+    //console.log(parent)
+    if (ctx.user) {
+      // look up userId in the DB
+      const profile = await ctx.db.identity
+        .findOne({ where: { auth0Sub: ctx.user.sub } })
+        .user()
+        .profile()
+
+      pass = profile !== null && profile.id === parent.profileId
+    }
+    //console.log('matchesProfile rule: ', pass)
+    return pass
+  },
+)
+
 /*const debug = rule({ cache: 'contextual' })(
   async (parent, args, ctx: CustomContext, info) => {
     console.log('Debug', parent, args)
@@ -113,8 +137,10 @@ const permissions = shield({
       user: isAuthenticated,
       profile: isNicknameCheck,
       identity: isAuth0SubCheck,
+      skill: isAuthenticated,
     },
-    User: and(isAuthenticated, isOwner),
+    User: and(isAuthenticated, matchesUser),
+    Skill: and(isAuthenticated, matchesProfile),
     Mutation: {
       // default deny
       '*': deny,
