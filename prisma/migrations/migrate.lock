@@ -10,3 +10,4 @@
 20200530165753-move-auth0sub-from-user-to-identity-table
 20200601074146-skill-level-optional
 20200611093933-case-insensitive-fields
+20200611191418-removed-image-from-profile
