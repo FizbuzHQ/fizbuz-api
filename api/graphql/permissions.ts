@@ -146,6 +146,7 @@ const permissions = shield({
       '*': deny,
       createOneUser: and(isSignupMutation, isSignupCheck),
       updateOneProfile: or(isOnboardingProfileUpdate, isOnboardingSkillsUpdate),
+      createOneTool: isAuthenticated,
     },
   },
   options: {

@@ -1,4 +1,7 @@
 //import * as Yup from 'yup'
+//import * as Yup from '@types/yup';
+
+// TODO: figure out how to get rid of the use of "any"
 
 // query schemas
 const nicknameCheckSchema = (yup: any) => {

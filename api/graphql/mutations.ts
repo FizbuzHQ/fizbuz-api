@@ -2,6 +2,9 @@ import { schema } from 'nexus'
 
 schema.mutationType({
   definition(t) {
+    t.crud.createOneUser()
+    t.crud.updateOneProfile()
+    t.crud.createOneTool()
     // public records
     /*t.crud.createOneOpenGraph()
     t.crud.updateOneOpenGraph()
@@ -16,7 +19,6 @@ schema.mutationType({
     t.crud.updateOneTrait()
     t.crud.deleteOneTrait()*/
     // user records
-    t.crud.createOneUser()
     //t.crud.updateOneUser()
     //t.crud.deleteOneUser()
     // user-owned records
@@ -36,7 +38,6 @@ schema.mutationType({
     t.crud.updateOnePreference()
     t.crud.deleteOnePreference()
     t.crud.createOneProfile()*/
-    t.crud.updateOneProfile()
     /*t.crud.deleteOneProfile()
     t.crud.createOneSkill()
     t.crud.updateOneSkill()
